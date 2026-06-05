@@ -67,6 +67,10 @@ class SankhyaReporter:
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
 
+        self.cookies = None
+        self.login_em = None
+        self.sessao_ttl_segundos = int(os.getenv("SANKHYA_SESSAO_TTL_SEGUNDOS", "900"))
+
     def fazer_login(self):
         if not all([SANKHYA_CRED["USUARIO"], SANKHYA_CRED["SENHA"], SANKHYA_CRED["BASE_URL"]]):
             self.logger.warning("Credenciais Sankhya incompletas no .env")
@@ -95,6 +99,30 @@ class SankhyaReporter:
         except Exception as exc:
             self.logger.exception("Erro no login Sankhya: %s", exc)
         return None
+    
+    def sessao_valida(self):
+        if not self.cookies or not self.login_em:
+            return False
+
+        idade = (datetime.now() - self.login_em).total_seconds()
+        return idade < self.sessao_ttl_segundos
+
+    def limpar_sessao(self):
+        self.cookies = None
+        self.login_em = None
+
+    def obter_cookies(self, forcar_login=False):
+        if not forcar_login and self.sessao_valida():
+            self.logger.info("Reutilizando sessão Sankhya existente")
+            return self.cookies
+
+        cookies = self.fazer_login()
+
+        if cookies:
+            self.cookies = cookies
+            self.login_em = datetime.now()
+
+        return cookies    
 
     def calcular_periodo(self):
         hoje = datetime.now()
@@ -231,12 +259,28 @@ class SankhyaReporter:
             return None
 
     def gerar_dashboard(self):
-        cookies = self.fazer_login()
+        cookies = self.obter_cookies()
         if not cookies:
             return None
 
-        estoque = self.buscar_dados(cookies, "estoque") or {}
-        faturamento = self.buscar_dados(cookies, "faturamento") or {}
+        estoque = self.buscar_dados(cookies, "estoque")
+        faturamento = self.buscar_dados(cookies, "faturamento")
+
+        if estoque is None or faturamento is None:
+            self.logger.warning("Sessão Sankhya pode ter expirado. Tentando novo login.")
+
+            self.limpar_sessao()
+            cookies = self.obter_cookies(forcar_login=True)
+
+            if not cookies:
+                return None
+
+            estoque = self.buscar_dados(cookies, "estoque") or {}
+            faturamento = self.buscar_dados(cookies, "faturamento") or {}
+        else:
+            estoque = estoque or {}
+            faturamento = faturamento or {}
+
         inicio, fim = self.calcular_periodo()
 
         return {

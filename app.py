@@ -18,6 +18,8 @@ CACHE_FILE = DATA_DIR / "dashboard_cache.json"
 DATA_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="Sankhya Dashboard Comercial")
+reporter = SankhyaReporter()
+
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 
@@ -52,7 +54,6 @@ def coletar_dashboard(forcar=False):
             except Exception:
                 pass
 
-    reporter = SankhyaReporter()
     dados = reporter.gerar_dashboard()
     if dados:
         salvar_cache(dados)
