@@ -1,0 +1,6 @@
+.env
+.env.*
+dashboard_cache.json
+firebase/
+**/__pycache__/
+*.py[cod]

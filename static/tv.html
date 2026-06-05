@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard Comercial</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background:
+        radial-gradient(circle at top right, rgba(56,189,248,.20), transparent 34%),
+        linear-gradient(135deg, #020617, #0f172a 58%, #052e2b);
+    color: #f8fafc;
+    padding: clamp(14px, 1.1vw, 24px);
+}
+
+.dashboard {
+    height: calc(100vh - 46px);
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    gap: clamp(10px, .9vw, 18px);
+    min-height: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.title h1 {
+    font-size: clamp(30px, 2.3vw, 54px);
+    margin: 0;
+    letter-spacing: -1.5px;
+}
+
+.periodo {
+    color: #93c5fd;
+    font-size: clamp(14px, 1vw, 20px);
+    margin-top: 6px;
+}
+
+.status {
+    text-align: right;
+    color: #bfdbfe;
+    font-size: clamp(13px, .9vw, 18px);
+    line-height: 1.35;
+}
+
+.live {
+    color: #22c55e;
+    font-weight: 900;
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: 1.55fr .72fr .72fr;
+    gap: clamp(10px, 1vw, 18px);
+}
+
+.hero-card,
+.side-card,
+.card,
+.panel {
+    background: rgba(15, 23, 42, .86);
+    border: 1px solid rgba(148, 163, 184, .18);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .28);
+    border-radius: 24px;
+}
+
+.hero-card {
+    padding: clamp(18px, 1.7vw, 34px);
+    background:
+        radial-gradient(circle at right top, rgba(14,165,233,.34), transparent 35%),
+        linear-gradient(135deg, rgba(15,23,42,.96), rgba(30,64,175,.45));
+}
+
+.hero-label {
+    font-size: clamp(20px, 1.35vw, 30px);
+    text-transform: uppercase;
+    font-weight: 900;
+    color: #93c5fd;
+    letter-spacing: .08em;
+}
+
+.hero-value {
+    font-size: clamp(78px, 6.7vw, 150px);
+    line-height: .95;
+    font-weight: 1000;
+    letter-spacing: -5px;
+    margin-top: 10px;
+    white-space: nowrap;
+}
+
+.hero-sub {
+    color: #cbd5e1;
+    font-size: clamp(15px, 1vw, 21px);
+    margin-top: 10px;
+}
+
+.side-card {
+    padding: clamp(16px, 1.3vw, 26px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.side-label {
+    font-size: clamp(14px, 1vw, 20px);
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.side-value {
+    font-size: clamp(36px, 3.2vw, 74px);
+    line-height: 1;
+    font-weight: 1000;
+    margin-top: 10px;
+    white-space: nowrap;
+}
+
+.progress {
+    width: 100%;
+    height: 22px;
+    background: rgba(148, 163, 184, .22);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 18px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, #22c55e, #facc15);
+    transition: width .6s ease;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(10px, 1vw, 18px);
+}
+
+.card {
+    padding: clamp(14px, 1.1vw, 22px);
+    min-width: 0;
+}
+
+.card-label {
+    color: #94a3b8;
+    font-size: clamp(13px, .9vw, 18px);
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.card-value {
+    font-size: clamp(25px, 2.1vw, 46px);
+    font-weight: 1000;
+    margin-top: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-sub {
+    color: #94a3b8;
+    font-size: clamp(12px, .8vw, 16px);
+    margin-top: 8px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(10px, .9vw, 18px);
+}
+
+.panel-title {
+    font-size: clamp(24px, 1.65vw, 36px);
+    font-weight: 1000;
+}
+
+.panel-sub {
+    color: #94a3b8;
+    font-size: clamp(12px, .85vw, 16px);
+}
+
+.ticker {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 44px;
+    background: rgba(15, 23, 42, .92);
+    border-top: 1px solid rgba(148, 163, 184, .18);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.ticker-content {
+    white-space: nowrap;
+    animation: ticker 34s linear infinite;
+    font-weight: 900;
+    color: #e0f2fe;
+    font-size: clamp(16px, 1.1vw, 22px);
+}
+
+@keyframes ticker {
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
+}
+
+.meta-ok {
+    color: #22c55e;
+}
+
+.meta-alerta {
+    color: #facc15;
+}
+
+.meta-critica {
+    color: #fb7185;
+}
+
+@media (max-width: 1400px) {
+    .hero {
+        grid-template-columns: 1.45fr .75fr;
+    }
+
+    .hero .side-card:last-child {
+        display: none;
+    }
+}
+
+.ranking-panel {
+    min-height: 0;
+    overflow: hidden;
+    padding: clamp(10px, 1vw, 18px);
+    display: flex;
+    flex-direction: column;
+}
+
+.ranking-panel .panel-header {
+    flex: 0 0 auto;
+    margin-bottom: clamp(8px, .8vw, 14px);
+}
+
+.seller-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: 1fr;
+    gap: clamp(8px, .8vw, 14px);
+    overflow: hidden;
+}
+
+.seller-card {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    padding: clamp(10px, .9vw, 18px);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top right, rgba(14,165,233,.20), transparent 35%),
+        rgba(15,23,42,.78);
+    border: 1px solid rgba(148,163,184,.14);
+    display: grid;
+    grid-template-rows: auto auto auto auto;
+    align-content: start;
+    overflow: hidden;
+}
+
+.seller-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.seller-name {
+    min-width: 0;
+    font-size: clamp(12px, .9vw, 18px);
+    font-weight: 1000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seller-position {
+    flex: 0 0 auto;
+    min-width: 32px;
+    height: 26px;
+    padding: 0 8px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(14,165,233,.18);
+    color: #38bdf8;
+    font-weight: 1000;
+    font-size: clamp(11px, .75vw, 14px);
+}
+
+.seller-value {
+    font-size: clamp(19px, 1.55vw, 34px);
+    font-weight: 1000;
+    white-space: nowrap;
+    line-height: 1;
+    margin-top: clamp(6px, .6vw, 10px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seller-detail {
+    margin-top: clamp(5px, .45vw, 8px);
+    font-size: clamp(9px, .7vw, 13px);
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seller-progress {
+    height: clamp(6px, .55vw, 9px);
+    background: rgba(148,163,184,.18);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: clamp(8px, .8vw, 14px);
+}
+
+.seller-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, #22c55e);
+}
+
+.seller-meta {
+    margin-top: 5px;
+    font-size: clamp(9px, .68vw, 13px);
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seller-progress-ok {
+    background: linear-gradient(90deg, #22c55e, #a3e635);
+}
+
+/* Notebook / telas com pouca altura */
+@media (max-height: 820px) {
+    .ranking-panel {
+        padding: 10px 14px;
+    }
+
+    .panel-title {
+        font-size: clamp(20px, 1.4vw, 28px);
+    }
+
+    .panel-sub {
+        font-size: 13px;
+    }
+
+    .seller-card {
+        padding: 9px 12px;
+        border-radius: 14px;
+    }
+
+    .seller-name {
+        font-size: 13px;
+    }
+
+    .seller-value {
+        font-size: 22px;
+        margin-top: 5px;
+    }
+
+    .seller-detail {
+        font-size: 10px;
+        margin-top: 4px;
+    }
+
+    .seller-progress {
+        height: 6px;
+        margin-top: 7px;
+    }
+}
+
+/* Telas mais estreitas */
+@media (max-width: 1400px) {
+    .seller-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Celular ou janela muito pequena */
+@media (max-width: 900px) {
+    .seller-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(3, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="dashboard">
+
+    <header class="header">
+        <div class="title">
+            <h1>Dashboard Comercial</h1>
+            <div class="periodo" id="periodo">Período carregando...</div>
+        </div>
+
+        <div class="status">
+            <div class="live">● AO VIVO</div>
+            <div id="atualizado">Atualizando...</div>
+            <div>Fonte: Sankhya</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-card">
+            <div class="hero-label">Faturado + Previsto</div>
+            <div class="hero-value" id="heroFatPrevisto">R$ 0</div>
+            <div class="hero-sub" id="heroSub">Resultado total projetado no período</div>
+        </div>
+
+        <div class="side-card">
+            <div class="side-label">Meta comercial</div>
+            <div class="side-value" id="percentualMeta">0%</div>
+            <div class="progress">
+                <div class="progress-fill" id="barraMeta"></div>
+            </div>
+        </div>
+
+        <div class="side-card">
+            <div class="side-label">Falta para meta</div>
+            <div class="side-value" id="faltaMeta">R$ 0</div>
+        </div>
+    </section>
+
+    <section class="cards">
+        <div class="card">
+            <div class="card-label">Total Faturado</div>
+            <div class="card-value" id="totalFaturado">R$ 0</div>
+            <div class="card-sub">Vendas já confirmadas</div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Previsto</div>
+            <div class="card-value" id="totalPrevisto">R$ 0</div>
+            <div class="card-sub">Oportunidades previstas</div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Grande Chance</div>
+            <div class="card-value" id="grandeChance">R$ 0</div>
+            <div class="card-sub">Potencial em negociação</div>
+        </div>
+
+        <div class="card">
+            <div class="card-label">Estoque Total</div>
+            <div class="card-value" id="estoqueTotal">R$ 0</div>
+            <div class="card-sub">Base disponível</div>
+        </div>
+    </section>
+
+    <section class="panel ranking-panel">
+			<div class="panel-header">
+					<div>
+							<div class="panel-title">Vendedores</div>
+							<div class="panel-sub">Performance do período</div>
+					</div>
+					<div class="panel-sub" id="rankingResumo">Carregando...</div>
+			</div>
+
+			<div class="seller-grid" id="ranking"></div>
+	</section>
+
+</div>
+
+<div class="ticker">
+    <div class="ticker-content" id="ticker">
+        Carregando informações comerciais...
+    </div>
+</div>
+
+<script>
+let ultimoDashboardValido = null;
+let falhasConsecutivas = 0;
+
+function brl(valor) {
+    const numero = Number(valor || 0);
+
+    return numero.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        maximumFractionDigits: 0
+    });
+}
+
+function pct(valor) {
+    return `${Number(valor || 0).toFixed(1).replace(".", ",")}%`;
+}
+
+function numeroSeguro(valor) {
+    const numero = Number(valor || 0);
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function textoData(valor) {
+    if (!valor) return "Atualizado agora";
+
+    const data = new Date(valor);
+
+    if (!Number.isNaN(data.getTime())) {
+        return "Atualizado em " + data.toLocaleString("pt-BR");
+    }
+
+    return "Atualizado em " + valor;
+}
+
+function calcularClasseMeta(percentual) {
+    if (percentual >= 100) return "meta-ok";
+    if (percentual >= 70) return "meta-alerta";
+    return "meta-critica";
+}
+
+let vendedoresGlobais = [];
+let paginaVendedores = 0;
+const VENDEDORES_POR_PAGINA = 3;
+
+function renderRanking(vendedores) {
+    vendedoresGlobais = Array.isArray(vendedores) ? vendedores : [];
+
+    if (!vendedoresGlobais.length) {
+        document.getElementById("ranking").innerHTML = "";
+        document.getElementById("rankingResumo").innerText = "Sem vendedores no período";
+        return;
+    }
+
+    renderPaginaVendedores();
+}
+
+function renderPaginaVendedores() {
+    const container = document.getElementById("ranking");
+    container.innerHTML = "";
+
+    const total = vendedoresGlobais.length;
+    const totalPaginas = Math.ceil(total / VENDEDORES_POR_PAGINA);
+
+    if (paginaVendedores >= totalPaginas) {
+        paginaVendedores = 0;
+    }
+
+    const inicio = paginaVendedores * VENDEDORES_POR_PAGINA;
+    const fim = inicio + VENDEDORES_POR_PAGINA;
+    const vendedoresPagina = vendedoresGlobais.slice(inicio, fim);
+
+    vendedoresPagina.forEach((vendedor, index) => {
+        const posicao = inicio + index + 1;
+
+        const nome = vendedor.Vendedor || vendedor.vendedor || "Sem nome";
+        const totalVendedor = numeroSeguro(vendedor.Total);
+        const faturado = numeroSeguro(vendedor.Faturado);
+        const previsto = numeroSeguro(vendedor.Previsto);
+        const metaVendedor = numeroSeguro(vendedor.Meta);
+
+        const percentualMetaVendedor =
+            metaVendedor > 0 ? (totalVendedor / metaVendedor) * 100 : 0;
+
+        const faltaMetaVendedor =
+            Math.max(metaVendedor - totalVendedor, 0);
+
+        const progresso =
+            metaVendedor > 0 ? Math.min(percentualMetaVendedor, 100) : 0;
+
+        const metaAtingida =
+            metaVendedor > 0 && percentualMetaVendedor >= 100;
+
+        const card = document.createElement("div");
+        card.className = "seller-card";
+
+        card.innerHTML = `
+            <div class="seller-top">
+                <div class="seller-name">${nome}</div>
+                <div class="seller-position">#${posicao}</div>
+            </div>
+
+            <div class="seller-value">
+                ${brl(totalVendedor)}
+            </div>
+
+            <div class="seller-detail">
+                Fat: ${brl(faturado)} | Prev: ${brl(previsto)}
+            </div>
+
+            <div class="seller-meta">
+                Meta: ${brl(metaVendedor)} • Falta: ${brl(faltaMetaVendedor)} • ${pct(percentualMetaVendedor)}
+            </div>
+
+            <div class="seller-progress">
+                <div 
+                    class="seller-progress-fill ${metaAtingida ? "seller-progress-ok" : ""}" 
+                    style="width:${progresso}%">
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+    });
+
+    document.getElementById("rankingResumo").innerText =
+        `Mostrando ${inicio + 1}-${Math.min(fim, total)} de ${total}`;
+}
+
+function renderDashboard(dados, origemCache = false) {
+    if (!dados) return;
+
+    const estoque = dados.estoque || {};
+    const faturamento = dados.faturamento || {};
+    const metas = dados.metas || {};
+
+    const fatPrevisto = numeroSeguro(faturamento["Faturado + Previsto"]);
+    const totalFaturado = numeroSeguro(faturamento["Total Faturado"]);
+    const totalPrevisto = numeroSeguro(faturamento["Total Previsto"]);
+    const grandeChance = numeroSeguro(faturamento["Grande Chance"]);
+    const estoqueTotal = numeroSeguro(estoque["Estoque Total"]);
+
+    const metaBase = numeroSeguro(metas["META_BASE"] || metas["Meta Base"] || 0);
+    const percentual = metaBase > 0 ? (fatPrevisto / metaBase) * 100 : 0;
+    const falta = Math.max(metaBase - fatPrevisto, 0);
+
+    document.getElementById("heroFatPrevisto").innerText = brl(fatPrevisto);
+    document.getElementById("heroSub").innerText =
+        `${brl(fatPrevisto)} de ${brl(metaBase)} no período`;
+
+    const percentualEl = document.getElementById("percentualMeta");
+    percentualEl.innerText = pct(percentual);
+    percentualEl.classList.remove("meta-ok", "meta-alerta", "meta-critica");
+    percentualEl.classList.add(calcularClasseMeta(percentual));
+
+    document.getElementById("barraMeta").style.width = `${Math.min(percentual, 100)}%`;
+    document.getElementById("faltaMeta").innerText = brl(falta);
+
+    document.getElementById("totalFaturado").innerText = brl(totalFaturado);
+    document.getElementById("totalPrevisto").innerText = brl(totalPrevisto);
+    document.getElementById("grandeChance").innerText = brl(grandeChance);
+    document.getElementById("estoqueTotal").innerText = brl(estoqueTotal);
+
+    if (dados.periodo) {
+        document.getElementById("periodo").innerText =
+            `Período: ${dados.periodo.inicio} até ${dados.periodo.fim}`;
+    }
+
+    document.getElementById("atualizado").innerText =
+        textoData(dados.atualizado_em) + (origemCache ? " • cache local" : "");
+
+    const vendedores = faturamento["Vendedores"] || [];
+    renderRanking(vendedores);
+
+    const lider = vendedores[0];
+
+    let mensagem =
+        `Faturado + Previsto: ${brl(fatPrevisto)} • Meta: ${pct(percentual)} • Falta para meta: ${brl(falta)} • Estoque total: ${brl(estoqueTotal)}`;
+
+    if (lider) {
+        mensagem += ` • Líder do ranking: ${lider.Vendedor} com ${brl(lider.Total)}`;
+    }
+
+    if (falhasConsecutivas > 0) {
+        mensagem += ` • Dados mantidos da última atualização válida`;
+    }
+
+    document.getElementById("ticker").innerText = mensagem;
+}
+
+async function buscarDashboardComTimeout() {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+
+    try {
+        const response = await fetch("/api/dashboard?ts=" + Date.now(), {
+            signal: controller.signal,
+            cache: "no-store"
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            throw new Error("API retornou status " + response.status);
+        }
+
+        return await response.json();
+
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+async function carregarDashboard() {
+    try {
+        const dados = await buscarDashboardComTimeout();
+
+        if (!dados || !dados.faturamento) {
+            throw new Error("Resposta sem dados de faturamento");
+        }
+
+        ultimoDashboardValido = dados;
+        falhasConsecutivas = 0;
+
+        try {
+            localStorage.setItem("dashboard_comercial_cache", JSON.stringify(dados));
+        } catch (e) {}
+
+        renderDashboard(dados, false);
+
+    } catch (error) {
+        console.warn("Falha ao atualizar dashboard:", error);
+
+        falhasConsecutivas += 1;
+
+        if (ultimoDashboardValido) {
+            renderDashboard(ultimoDashboardValido, true);
+            return;
+        }
+
+        try {
+            const cache = localStorage.getItem("dashboard_comercial_cache");
+
+            if (cache) {
+                ultimoDashboardValido = JSON.parse(cache);
+                renderDashboard(ultimoDashboardValido, true);
+                return;
+            }
+        } catch (e) {}
+
+        document.getElementById("ticker").innerText =
+            "Aguardando primeira carga válida do dashboard...";
+    }
+}
+
+carregarDashboard();
+
+setInterval(() => {
+    if (!vendedoresGlobais.length) return;
+
+    const totalPaginas = Math.ceil(vendedoresGlobais.length / VENDEDORES_POR_PAGINA);
+
+    if (totalPaginas <= 1) return;
+
+    paginaVendedores = (paginaVendedores + 1) % totalPaginas;
+    renderPaginaVendedores();
+
+}, 8000);
+
+setInterval(carregarDashboard, 60000);
+
+setInterval(() => {
+    window.location.reload();
+}, 1000 * 60 * 60 * 4);
+</script>
+</body>
+</html>
