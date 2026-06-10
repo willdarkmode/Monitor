@@ -134,6 +134,64 @@ class SankhyaReporter:
             fim = hoje.replace(day=4)
         return inicio.strftime("%d/%m/%Y"), fim.strftime("%d/%m/%Y")
 
+    def eh_dia_util(self, data):
+        if isinstance(data, datetime):
+            data = data.date()
+        return data.weekday() < 5 and not FeriadosBrasil.eh_feriado(data)
+
+    def contar_dias_uteis_restantes(self, fim_periodo):
+        hoje = datetime.now().date()
+        if isinstance(fim_periodo, datetime):
+            fim = fim_periodo.date()
+        else:
+            fim = fim_periodo
+
+        if hoje > fim:
+            return 0
+
+        dias_uteis = 0
+        data_atual = hoje
+
+        while data_atual <= fim:
+            if self.eh_dia_util(data_atual):
+                dias_uteis += 1
+            data_atual += timedelta(days=1)
+
+        return dias_uteis
+
+    def calcular_ritmo_meta(self, faturamento):
+        realizado = float((faturamento or {}).get("Faturado + Previsto", 0) or 0)
+        meta_base = METAS.get("META_BASE", 0)
+        super_meta = METAS.get("SUPER_META", 0)
+        _, fim_txt = self.calcular_periodo()
+        fim_periodo = datetime.strptime(fim_txt, "%d/%m/%Y").date()
+        dias_uteis_restantes = self.contar_dias_uteis_restantes(fim_periodo)
+
+        if realizado < meta_base:
+            alvo = "META_BASE"
+            valor_alvo = meta_base
+        elif realizado < super_meta:
+            alvo = "SUPER_META"
+            valor_alvo = super_meta
+        else:
+            alvo = "SUPER_META_ATINGIDA"
+            valor_alvo = super_meta
+
+        valor_restante = max(valor_alvo - realizado, 0)
+        necessario_por_dia_util = (
+            valor_restante / dias_uteis_restantes
+            if dias_uteis_restantes > 0 and valor_restante > 0
+            else 0
+        )
+
+        return {
+            "alvo": alvo,
+            "valor_alvo": valor_alvo,
+            "dias_uteis_restantes": dias_uteis_restantes,
+            "valor_restante": valor_restante,
+            "necessario_por_dia_util": necessario_por_dia_util,
+        }
+
     def buscar_dados(self, cookies, tipo):
         endpoint = f'{SANKHYA_CRED["BASE_URL"]}/service.sbr'
         sessao = SANKHYA_CRED["SESSAO_ESTOQUE" if tipo == "estoque" else "SESSAO_FATURAMENTO"]
@@ -282,12 +340,14 @@ class SankhyaReporter:
             faturamento = faturamento or {}
 
         inicio, fim = self.calcular_periodo()
+        ritmo_meta = self.calcular_ritmo_meta(faturamento)
 
         return {
             "fonte": "sankhya",
             "atualizado_em": datetime.now().isoformat(),
             "periodo": {"inicio": inicio, "fim": fim},
             "metas": METAS,
+            "ritmo_meta": ritmo_meta,
             "estoque": estoque,
             "faturamento": faturamento,
         }
@@ -296,11 +356,27 @@ class SankhyaReporter:
 def gerar_mock():
     agora = datetime.now()
     realizado = 2987500.0
+    reporter = SankhyaReporter()
+    faturamento = {
+        "Faturado + Previsto": realizado,
+        "Devoluções": 82000,
+        "Total Faturado": 2380000,
+        "Total Previsto": 607500,
+        "Grande Chance": 410000,
+        "Vendedores": [
+            {"Vendedor": "Ana Paula", "Faturado": 640000, "Previsto": 180000, "Total": 820000},
+            {"Vendedor": "Carlos", "Faturado": 580000, "Previsto": 130000, "Total": 710000},
+            {"Vendedor": "João", "Faturado": 470000, "Previsto": 120000, "Total": 590000},
+            {"Vendedor": "Mariana", "Faturado": 380000, "Previsto": 100000, "Total": 480000},
+            {"Vendedor": "Rafael", "Faturado": 310000, "Previsto": 65000, "Total": 375000},
+        ],
+    }
     return {
         "fonte": "mock",
         "atualizado_em": agora.isoformat(),
         "periodo": {"inicio": "05/06/2026", "fim": "04/07/2026"},
         "metas": METAS,
+        "ritmo_meta": reporter.calcular_ritmo_meta(faturamento),
         "estoque": {
             "Estoque Total": 2145000,
             "Novos P&R": 690000,
@@ -310,18 +386,5 @@ def gerar_mock():
             "Especiais": 185000,
             "Separados": 200000,
         },
-        "faturamento": {
-            "Faturado + Previsto": realizado,
-            "Devoluções": 82000,
-            "Total Faturado": 2380000,
-            "Total Previsto": 607500,
-            "Grande Chance": 410000,
-            "Vendedores": [
-                {"Vendedor": "Ana Paula", "Faturado": 640000, "Previsto": 180000, "Total": 820000},
-                {"Vendedor": "Carlos", "Faturado": 580000, "Previsto": 130000, "Total": 710000},
-                {"Vendedor": "João", "Faturado": 470000, "Previsto": 120000, "Total": 590000},
-                {"Vendedor": "Mariana", "Faturado": 380000, "Previsto": 100000, "Total": 480000},
-                {"Vendedor": "Rafael", "Faturado": 310000, "Previsto": 65000, "Total": 375000},
-            ],
-        },
+        "faturamento": faturamento,
     }
