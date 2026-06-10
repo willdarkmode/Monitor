@@ -655,6 +655,7 @@ function renderDashboard(dados, origemCache = false) {
     const estoque = dados.estoque || {};
     const faturamento = dados.faturamento || {};
     const metas = dados.metas || {};
+    const ritmoMeta = dados.ritmo_meta || {};
 
     const fatPrevisto = numeroSeguro(faturamento["Faturado + Previsto"]);
     const totalFaturado = numeroSeguro(faturamento["Total Faturado"]);
@@ -697,19 +698,31 @@ function renderDashboard(dados, origemCache = false) {
     renderRanking(vendedores);
 
     const lider = vendedores[0];
-
-    let mensagem =
-        `Faturado + Previsto: ${brl(fatPrevisto)} • Meta: ${pct(percentual)} • Falta para meta: ${brl(falta)} • Devoluções: ${brl(devolucoes)} • Estoque total: ${brl(estoqueTotal)}`;
+    const mensagensTicker = [];
 
     if (lider) {
-        mensagem += ` • Líder do ranking: ${lider.Vendedor} com ${brl(lider.Total)}`;
+        mensagensTicker.push(`Líder do período: ${lider.Vendedor} com ${brl(lider.Total)}`);
+    } else {
+        mensagensTicker.push("Ranking de vendedores aguardando dados do período");
     }
 
-    if (falhasConsecutivas > 0) {
-        mensagem += ` • Dados mantidos da última atualização válida`;
+    if (ritmoMeta.alvo === "SUPER_META_ATINGIDA") {
+        mensagensTicker.push("Super meta atingida");
+    } else if (ritmoMeta.alvo === "SUPER_META") {
+        const necessarioSuper = numeroSeguro(ritmoMeta.necessario_por_dia_util);
+        mensagensTicker.push("Meta atingida");
+        mensagensTicker.push(`Para super meta: ${brl(necessarioSuper)}/dia útil`);
+    } else {
+        const necessarioMeta = numeroSeguro(ritmoMeta.necessario_por_dia_util);
+        mensagensTicker.push(`Meta em evolução: ${pct(percentual)}`);
+        mensagensTicker.push(`Necessário por dia útil: ${brl(necessarioMeta)}`);
     }
 
-    document.getElementById("ticker").innerText = mensagem;
+    if (origemCache || falhasConsecutivas > 0) {
+        mensagensTicker.push("Exibindo última atualização válida");
+    }
+
+    document.getElementById("ticker").innerText = mensagensTicker.join(" • ");
 }
 
 async function buscarDashboardComTimeout() {
