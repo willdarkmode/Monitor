@@ -153,7 +153,7 @@ body {
 
 .cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: clamp(10px, 1vw, 18px);
 }
 
@@ -247,6 +247,10 @@ body {
 
     .hero .side-card:last-child {
         display: none;
+    }
+
+    .cards {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -416,8 +420,12 @@ body {
 /* Celular ou janela muito pequena */
 @media (max-width: 900px) {
     .seller-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
         grid-template-rows: repeat(3, 1fr);
+    }
+
+    .cards {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 }
 </style>
@@ -480,6 +488,12 @@ body {
         </div>
 
         <div class="card">
+            <div class="card-label">Devoluções</div>
+            <div class="card-value" id="devolucoes">R$ 0</div>
+            <div class="card-sub">Valor devolvido no período</div>
+        </div>
+
+        <div class="card">
             <div class="card-label">Estoque Total</div>
             <div class="card-value" id="estoqueTotal">R$ 0</div>
             <div class="card-sub">Base disponível</div>
@@ -487,16 +501,16 @@ body {
     </section>
 
     <section class="panel ranking-panel">
-			<div class="panel-header">
-					<div>
-							<div class="panel-title">Vendedores</div>
-							<div class="panel-sub">Performance do período</div>
-					</div>
-					<div class="panel-sub" id="rankingResumo">Carregando...</div>
-			</div>
+            <div class="panel-header">
+                    <div>
+                            <div class="panel-title">Vendedores</div>
+                            <div class="panel-sub">Performance do período</div>
+                    </div>
+                    <div class="panel-sub" id="rankingResumo">Carregando...</div>
+            </div>
 
-			<div class="seller-grid" id="ranking"></div>
-	</section>
+            <div class="seller-grid" id="ranking"></div>
+    </section>
 
 </div>
 
@@ -646,6 +660,7 @@ function renderDashboard(dados, origemCache = false) {
     const totalFaturado = numeroSeguro(faturamento["Total Faturado"]);
     const totalPrevisto = numeroSeguro(faturamento["Total Previsto"]);
     const grandeChance = numeroSeguro(faturamento["Grande Chance"]);
+    const devolucoes = numeroSeguro(faturamento["Devoluções"]);
     const estoqueTotal = numeroSeguro(estoque["Estoque Total"]);
 
     const metaBase = numeroSeguro(metas["META_BASE"] || metas["Meta Base"] || 0);
@@ -667,6 +682,7 @@ function renderDashboard(dados, origemCache = false) {
     document.getElementById("totalFaturado").innerText = brl(totalFaturado);
     document.getElementById("totalPrevisto").innerText = brl(totalPrevisto);
     document.getElementById("grandeChance").innerText = brl(grandeChance);
+    document.getElementById("devolucoes").innerText = brl(devolucoes);
     document.getElementById("estoqueTotal").innerText = brl(estoqueTotal);
 
     if (dados.periodo) {
@@ -683,7 +699,7 @@ function renderDashboard(dados, origemCache = false) {
     const lider = vendedores[0];
 
     let mensagem =
-        `Faturado + Previsto: ${brl(fatPrevisto)} • Meta: ${pct(percentual)} • Falta para meta: ${brl(falta)} • Estoque total: ${brl(estoqueTotal)}`;
+        `Faturado + Previsto: ${brl(fatPrevisto)} • Meta: ${pct(percentual)} • Falta para meta: ${brl(falta)} • Devoluções: ${brl(devolucoes)} • Estoque total: ${brl(estoqueTotal)}`;
 
     if (lider) {
         mensagem += ` • Líder do ranking: ${lider.Vendedor} com ${brl(lider.Total)}`;
