@@ -1,814 +1,1105 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard Comercial</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Comercial — P&R Automação Industrial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <style>
+        /* ─── Reset & Base ─────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-}
+        :root {
+            --bg-deep:    #05080F;
+            --bg:         #0A0F1A;
+            --bg1:        #111827;
+            --bg2:        #1A2332;
+            --border:     rgba(255,255,255,.08);
+            --border2:    rgba(255,255,255,.15);
+            --amber:      #F59E0B;
+            --amber2:     #FBBF24;
+            --green:      #10B981;
+            --green2:     #34D399;
+            --red:        #EF4444;
+            --blue:       #3B82F6;
+            --blue2:      #60A5FA;
+            --purple:     #8B5CF6;
+            --muted:      #6B7280;
+            --sub:        #9CA3AF;
+            --text:       #E5E7EB;
+            --white:      #F9FAFB;
+            --mono:       'JetBrains Mono', monospace;
+            --sans:       'Inter', sans-serif;
+            --tick-h:     44px;
+            --pad:        clamp(20px, 2vw, 32px);
+            --radius-sm:  14px;
+            --radius-lg:  22px;
+        }
 
-body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background:
-        radial-gradient(circle at top right, rgba(56,189,248,.20), transparent 34%),
-        linear-gradient(135deg, #020617, #0f172a 58%, #052e2b);
-    color: #f8fafc;
-    padding: clamp(14px, 1.1vw, 24px);
-}
+        html, body {
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 30% 20%, #131E33 0%, var(--bg-deep) 70%);
+            color: var(--text);
+            font-family: var(--sans);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
 
-.dashboard {
-    height: calc(100vh - 46px);
-    display: grid;
-    grid-template-rows: auto auto auto 1fr;
-    gap: clamp(10px, .9vw, 18px);
-    min-height: 0;
-}
+        /* ─── Layout Principal ─────────────────────────────── */
+        .shell {
+            height: calc(100vh - var(--tick-h));
+            display: grid;
+            grid-template-rows: auto auto 1fr;
+            grid-template-columns: 1fr 380px;
+            column-gap: clamp(16px, 1.5vw, 28px);
+            row-gap: clamp(12px, 1.2vw, 22px);
+            padding: var(--pad) var(--pad) 0;
+        }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
+        /* ─── Header ───────────────────────────────────────── */
+        .hd {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: clamp(10px, 1vw, 18px);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(6px);
+        }
 
-.title h1 {
-    font-size: clamp(30px, 2.3vw, 54px);
-    margin: 0;
-    letter-spacing: -1.5px;
-}
+        .hd-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-.periodo {
-    color: #93c5fd;
-    font-size: clamp(14px, 1vw, 20px);
-    margin-top: 6px;
-}
+        .hd-logo {
+            width: clamp(44px, 3.5vw, 56px);
+            height: clamp(44px, 3.5vw, 56px);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+        }
 
-.status {
-    text-align: right;
-    color: #bfdbfe;
-    font-size: clamp(13px, .9vw, 18px);
-    line-height: 1.35;
-}
+        .hd-logo img {
+            width: 86%;
+            height: 86%;
+            object-fit: contain;
+            display: block;
+        }
 
-.live {
-    color: #22c55e;
-    font-weight: 900;
-}
+        .hd-title {
+            font-size: clamp(20px, 1.8vw, 30px);
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: -.4px;
+            text-shadow: 0 2px 8px rgba(0,0,0,.5);
+        }
 
-.hero {
-    display: grid;
-    grid-template-columns: 1.55fr .72fr .72fr;
-    gap: clamp(10px, 1vw, 18px);
-}
+        .hd-sub {
+            font-size: clamp(12px, .9vw, 15px);
+            color: var(--sub);
+            margin-top: 4px;
+            font-family: var(--mono);
+            letter-spacing: .03em;
+        }
 
-.hero-card,
-.side-card,
-.card,
-.panel {
-    background: rgba(15, 23, 42, .86);
-    border: 1px solid rgba(148, 163, 184, .18);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, .28);
-    border-radius: 24px;
-}
+        .hd-right {
+            display: flex;
+            align-items: center;
+            gap: clamp(28px, 3vw, 48px);
+        }
 
-.hero-card {
-    padding: clamp(18px, 1.7vw, 34px);
-    background:
-        radial-gradient(circle at right top, rgba(14,165,233,.34), transparent 35%),
-        linear-gradient(135deg, rgba(15,23,42,.96), rgba(30,64,175,.45));
-}
+        .hd-stat {
+            text-align: right;
+        }
 
-.hero-label {
-    font-size: clamp(20px, 1.35vw, 30px);
-    text-transform: uppercase;
-    font-weight: 900;
-    color: #93c5fd;
-    letter-spacing: .08em;
-}
+        .hd-stat-val {
+            font-size: clamp(14px, 1vw, 17px);
+            font-family: var(--mono);
+            font-weight: 700;
+            color: var(--text);
+        }
 
-.hero-value {
-    font-size: clamp(78px, 6.7vw, 150px);
-    line-height: .95;
-    font-weight: 1000;
-    letter-spacing: -5px;
-    margin-top: 10px;
-    white-space: nowrap;
-}
+        .hd-stat-label {
+            font-size: clamp(10px, .7vw, 12px);
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-top: 3px;
+        }
 
-.hero-sub {
-    color: #cbd5e1;
-    font-size: clamp(15px, 1vw, 21px);
-    margin-top: 10px;
-}
+        .live-dot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(12px, .85vw, 15px);
+            font-weight: 700;
+            color: var(--green2);
+            font-family: var(--mono);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            background: rgba(16,185,129,.08);
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(16,185,129,.25);
+        }
 
-.side-card {
-    padding: clamp(16px, 1.3vw, 26px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+        .live-dot::before {
+            content: '';
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,.6); }
+            50%     { opacity: .5; box-shadow: 0 0 0 10px rgba(16,185,129,0); }
+        }
 
-.side-label {
-    font-size: clamp(14px, 1vw, 20px);
-    text-transform: uppercase;
-    color: #94a3b8;
-    font-weight: 800;
-    letter-spacing: .08em;
-}
+        /* ─── Coluna Principal ────────────────────────────── */
+        .main-col {
+            grid-column: 1;
+            grid-row: 2 / 4;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: clamp(12px, 1.2vw, 22px);
+            min-height: 0;
+        }
 
-.side-value {
-    font-size: clamp(36px, 3.2vw, 74px);
-    line-height: 1;
-    font-weight: 1000;
-    margin-top: 10px;
-    white-space: nowrap;
-}
+        /* ─── KPI Strip ────────────────────────────────────── */
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: clamp(10px, 1vw, 18px);
+        }
 
-.progress {
-    width: 100%;
-    height: 22px;
-    background: rgba(148, 163, 184, .22);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-top: 18px;
-}
+        .kpi {
+            background: var(--bg1);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: clamp(16px, 1.4vw, 24px);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(6px);
+            transition: transform .3s ease, box-shadow .3s ease;
+            animation: fadeInUp .6s ease backwards;
+        }
+        .kpi:nth-child(1) { animation-delay: .05s; }
+        .kpi:nth-child(2) { animation-delay: .15s; }
+        .kpi:nth-child(3) { animation-delay: .25s; }
+        .kpi:nth-child(4) { animation-delay: .35s; }
+        .kpi:nth-child(5) { animation-delay: .45s; }
 
-.progress-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #38bdf8, #22c55e, #facc15);
-    transition: width .6s ease;
-}
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
-.cards {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: clamp(10px, 1vw, 18px);
-}
+        .kpi::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,.02) 0%, transparent 50%);
+            pointer-events: none;
+        }
 
-.card {
-    padding: clamp(14px, 1.1vw, 22px);
-    min-width: 0;
-}
+        .kpi:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(0,0,0,.4);
+            border-color: var(--border2);
+        }
 
-.card-label {
-    color: #94a3b8;
-    font-size: clamp(13px, .9vw, 18px);
-    font-weight: 900;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
+        .kpi-label {
+            font-size: clamp(10px, .75vw, 13px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--sub);
+            margin-bottom: 8px;
+        }
 
-.card-value {
-    font-size: clamp(25px, 2.1vw, 46px);
-    font-weight: 1000;
-    margin-top: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .kpi-val {
+            font-family: var(--mono);
+            font-size: clamp(22px, 2vw, 34px);
+            font-weight: 800;
+            color: var(--white);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color .4s;
+        }
 
-.card-sub {
-    color: #94a3b8;
-    font-size: clamp(12px, .8vw, 16px);
-    margin-top: 8px;
-}
+        .kpi-note {
+            font-size: clamp(10px, .7vw, 12px);
+            color: var(--muted);
+            margin-top: 6px;
+        }
 
-.panel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: clamp(10px, .9vw, 18px);
-}
+        /* Acentos coloridos */
+        .kpi-accent {
+            border-top: 3px solid var(--amber);
+            background: linear-gradient(180deg, rgba(245,158,11,.06) 0%, transparent 60%);
+        }
+        .kpi-accent-green {
+            border-top: 3px solid var(--green);
+            background: linear-gradient(180deg, rgba(16,185,129,.06) 0%, transparent 60%);
+        }
+        .kpi-accent-red {
+            border-top: 3px solid var(--red);
+            background: linear-gradient(180deg, rgba(239,68,68,.06) 0%, transparent 60%);
+        }
+        .kpi-accent-blue {
+            border-top: 3px solid var(--blue);
+            background: linear-gradient(180deg, rgba(59,130,246,.06) 0%, transparent 60%);
+        }
+        .kpi-accent-purple {
+            border-top: 3px solid var(--purple);
+            background: linear-gradient(180deg, rgba(139,92,246,.06) 0%, transparent 60%);
+        }
 
-.panel-title {
-    font-size: clamp(24px, 1.65vw, 36px);
-    font-weight: 1000;
-}
+        /* Flash de atualização */
+        .kpi.flash .kpi-val {
+            animation: flashVal .6s ease;
+        }
+        @keyframes flashVal {
+            0%,100% { color: var(--white); }
+            50%     { color: var(--amber2); }
+        }
 
-.panel-sub {
-    color: #94a3b8;
-    font-size: clamp(12px, .85vw, 16px);
-}
+        /* ─── Painel Meta ──────────────────────────────────── */
+        .meta-panel {
+            background: var(--bg1);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: clamp(22px, 2vw, 36px);
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: clamp(18px, 1.8vw, 30px);
+            min-height: 0;
+            backdrop-filter: blur(6px);
+        }
 
-.ticker {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 44px;
-    background: rgba(15, 23, 42, .92);
-    border-top: 1px solid rgba(148, 163, 184, .18);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-}
+        .meta-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 28px;
+        }
 
-.ticker-content {
-    white-space: nowrap;
-    animation: ticker 34s linear infinite;
-    font-weight: 900;
-    color: #e0f2fe;
-    font-size: clamp(16px, 1.1vw, 22px);
-}
+        .meta-eyebrow {
+            font-size: clamp(11px, .8vw, 14px);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            color: var(--sub);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
 
-@keyframes ticker {
-    from { transform: translateX(100%); }
-    to { transform: translateX(-100%); }
-}
+        .meta-big {
+            font-family: var(--mono);
+            font-size: clamp(48px, 5.5vw, 88px);
+            font-weight: 800;
+            line-height: .94;
+            letter-spacing: -2px;
+            color: var(--white);
+        }
 
-.meta-ok {
-    color: #22c55e;
-}
+        .meta-big span {
+            font-size: .35em;
+            font-weight: 500;
+            color: var(--sub);
+            letter-spacing: 0;
+            display: block;
+            margin-top: 4px;
+        }
 
-.meta-alerta {
-    color: #facc15;
-}
+        .meta-right {
+            text-align: right;
+            flex-shrink: 0;
+            background: rgba(255,255,255,.02);
+            padding: 18px 22px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
 
-.meta-critica {
-    color: #fb7185;
-}
+        .meta-pct {
+            font-family: var(--mono);
+            font-size: clamp(42px, 4vw, 72px);
+            font-weight: 800;
+            line-height: 1;
+            transition: color .5s;
+        }
 
-@media (max-width: 1400px) {
-    .hero {
-        grid-template-columns: 1.45fr .75fr;
-    }
+        .meta-pct-label {
+            font-size: clamp(10px, .7vw, 12px);
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-top: 6px;
+        }
 
-    .hero .side-card:last-child {
-        display: none;
-    }
+        .meta-falta {
+            margin-top: 12px;
+            font-family: var(--mono);
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 700;
+        }
 
-    .cards {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
+        .meta-falta-label {
+            font-size: clamp(10px, .7vw, 12px);
+            color: var(--sub);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            margin-top: 3px;
+        }
 
-.ranking-panel {
-    min-height: 0;
-    overflow: hidden;
-    padding: clamp(10px, 1vw, 18px);
-    display: flex;
-    flex-direction: column;
-}
+        /* Barra de combustível */
+        .fuel-wrap {
+            position: relative;
+        }
 
-.ranking-panel .panel-header {
-    flex: 0 0 auto;
-    margin-bottom: clamp(8px, .8vw, 14px);
-}
+        .fuel-bar {
+            width: 100%;
+            height: clamp(26px, 2.2vw, 38px);
+            background: var(--bg2);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,.5);
+        }
 
-.seller-grid {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: 1fr;
-    gap: clamp(8px, .8vw, 14px);
-    overflow: hidden;
-}
+        .fuel-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent calc(10% - 1px),
+                rgba(0,0,0,.3) calc(10% - 1px),
+                rgba(0,0,0,.3) 10%
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
 
-.seller-card {
-    min-width: 0;
-    min-height: 0;
-    height: 100%;
-    padding: clamp(10px, .9vw, 18px);
-    border-radius: 18px;
-    background:
-        radial-gradient(circle at top right, rgba(14,165,233,.20), transparent 35%),
-        rgba(15,23,42,.78);
-    border: 1px solid rgba(148,163,184,.14);
-    display: grid;
-    grid-template-rows: auto auto auto auto;
-    align-content: start;
-    overflow: hidden;
-}
+        .fuel-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #B45309, var(--amber), var(--amber2), var(--green), #6EE7B7);
+            background-size: 300% 100%;
+            background-position: right center;
+            transition: width 1s cubic-bezier(.4,0,.2,1), background-position .8s;
+            position: relative;
+            box-shadow: 0 0 20px rgba(245,158,11,.25);
+        }
 
-.seller-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-}
+        .fuel-fill::after {
+            content: '';
+            position: absolute;
+            top: 4px; right: 4px; bottom: 4px;
+            width: 4px;
+            background: white;
+            opacity: .9;
+            border-radius: 4px;
+            filter: blur(1px);
+        }
 
-.seller-name {
-    min-width: 0;
-    font-size: clamp(12px, .9vw, 18px);
-    font-weight: 1000;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .fuel-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: clamp(11px, .8vw, 14px);
+            color: var(--muted);
+            font-family: var(--mono);
+            font-weight: 600;
+        }
 
-.seller-position {
-    flex: 0 0 auto;
-    min-width: 32px;
-    height: 26px;
-    padding: 0 8px;
-    display: grid;
-    place-items: center;
-    border-radius: 999px;
-    background: rgba(14,165,233,.18);
-    color: #38bdf8;
-    font-weight: 1000;
-    font-size: clamp(11px, .75vw, 14px);
-}
+        /* Ritmo */
+        .ritmo-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(12px, 1.2vw, 20px);
+        }
 
-.seller-value {
-    font-size: clamp(19px, 1.55vw, 34px);
-    font-weight: 1000;
-    white-space: nowrap;
-    line-height: 1;
-    margin-top: clamp(6px, .6vw, 10px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .ritmo-item {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: clamp(14px, 1.2vw, 20px);
+        }
 
-.seller-detail {
-    margin-top: clamp(5px, .45vw, 8px);
-    font-size: clamp(9px, .7vw, 13px);
-    color: #94a3b8;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .ritmo-label {
+            font-size: clamp(10px, .7vw, 12px);
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--sub);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
-.seller-progress {
-    height: clamp(6px, .55vw, 9px);
-    background: rgba(148,163,184,.18);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-top: clamp(8px, .8vw, 14px);
-}
+        .ritmo-val {
+            font-family: var(--mono);
+            font-size: clamp(18px, 1.4vw, 26px);
+            font-weight: 700;
+            color: var(--white);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color .5s;
+        }
 
-.seller-progress-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #38bdf8, #22c55e);
-}
+        /* ─── Ranking (com rolagem infinita) ──────────────── */
+        .rank-col {
+            grid-column: 2;
+            grid-row: 2 / 4;
+            background: var(--bg1);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+            backdrop-filter: blur(6px);
+        }
 
-.seller-meta {
-    margin-top: 5px;
-    font-size: clamp(9px, .68vw, 13px);
-    color: #cbd5e1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .rank-header {
+            padding: clamp(18px, 1.5vw, 26px) clamp(18px, 1.5vw, 26px) 0;
+            flex-shrink: 0;
+        }
 
-.seller-progress-ok {
-    background: linear-gradient(90deg, #22c55e, #a3e635);
-}
+        .rank-title {
+            font-size: clamp(16px, 1.3vw, 22px);
+            font-weight: 800;
+            color: var(--white);
+        }
 
-/* Notebook / telas com pouca altura */
-@media (max-height: 820px) {
-    .ranking-panel {
-        padding: 10px 14px;
-    }
+        .rank-sub {
+            font-size: clamp(11px, .8vw, 14px);
+            color: var(--sub);
+            margin-top: 4px;
+            font-family: var(--mono);
+        }
 
-    .panel-title {
-        font-size: clamp(20px, 1.4vw, 28px);
-    }
+        .rank-divider {
+            height: 1px;
+            background: var(--border);
+            margin: clamp(14px, 1.2vw, 20px) 0 0;
+        }
 
-    .panel-sub {
-        font-size: 13px;
-    }
+        /* Container da lista com overflow hidden */
+        .rank-list {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            position: relative;
+            /* Efeito de fade nas bordas */
+            mask-image: linear-gradient(180deg, transparent 0%, black 8%, black 92%, transparent 100%);
+            -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 8%, black 92%, transparent 100%);
+        }
 
-    .seller-card {
-        padding: 9px 12px;
-        border-radius: 14px;
-    }
+        .rank-track {
+            display: flex;
+            flex-direction: column;
+            padding: 0 clamp(18px, 1.5vw, 26px);
+            animation: rank-scroll var(--scroll-duration, 30s) linear infinite;
+            will-change: transform;
+        }
 
-    .seller-name {
-        font-size: 13px;
-    }
+        .rank-group {
+            display: flex;
+            flex-direction: column;
+            padding: clamp(10px,.9vw,14px) 0;
+            flex-shrink: 0;
+        }
 
-    .seller-value {
-        font-size: 22px;
-        margin-top: 5px;
-    }
+        /* Pausa a animação ao passar o mouse (opcional, para debug) */
+        .rank-track:hover {
+            animation-play-state: paused;
+        }
 
-    .seller-detail {
-        font-size: 10px;
-        margin-top: 4px;
-    }
+        @keyframes rank-scroll {
+            from { transform: translate3d(0, 0, 0); }
+            to   { transform: translate3d(0, calc(-1 * var(--rank-group-height, 0px)), 0); }
+        }
 
-    .seller-progress {
-        height: 6px;
-        margin-top: 7px;
-    }
-}
+        .rank-item {
+            padding: clamp(14px, 1.1vw, 20px) 0;
+            border-bottom: 1px solid var(--border);
+        }
 
-/* Telas mais estreitas */
-@media (max-width: 1400px) {
-    .seller-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
+        .rank-item:last-child { border-bottom: none; }
 
-/* Celular ou janela muito pequena */
-@media (max-width: 900px) {
-    .seller-grid {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-        grid-template-rows: repeat(3, 1fr);
-    }
+        .rank-item-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .cards {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-}
-</style>
+        .rank-num {
+            font-family: var(--mono);
+            font-size: clamp(12px, .85vw, 15px);
+            font-weight: 700;
+            color: var(--muted);
+            width: 26px;
+            flex-shrink: 0;
+        }
+
+        .rank-num-1 { color: var(--amber); font-size: 120%; }
+        .rank-num-2 { color: var(--text); }
+        .rank-num-3 { color: var(--sub); }
+
+        .rank-name {
+            flex: 1 1 auto;
+            font-size: clamp(13px, .9vw, 16px);
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rank-total {
+            font-family: var(--mono);
+            font-size: clamp(13px, .95vw, 17px);
+            font-weight: 700;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .rank-bar-wrap {
+            margin-top: 8px;
+            height: 4px;
+            background: var(--bg2);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .rank-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--amber), var(--green2));
+            transition: width .8s ease;
+        }
+
+        .rank-bar-fill-ok {
+            background: linear-gradient(90deg, var(--green), #A7F3D0);
+        }
+
+        .rank-detail {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(10px, .7vw, 12px);
+            font-family: var(--mono);
+            color: var(--muted);
+        }
+
+        .rank-pct-ok   { color: var(--green2); font-weight: 700; }
+        .rank-pct-warn { color: var(--amber); font-weight: 700; }
+        .rank-pct-bad  { color: var(--red); font-weight: 700; }
+
+        /* ─── Ticker ───────────────────────────────────────── */
+        .ticker {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: var(--tick-h);
+            background: var(--bg1);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+            -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+            backdrop-filter: blur(4px);
+        }
+
+        .ticker-inner {
+            white-space: nowrap;
+            font-family: var(--mono);
+            font-size: clamp(13px, .95vw, 16px);
+            font-weight: 600;
+            color: var(--sub);
+            letter-spacing: .04em;
+            display: inline-block;
+            padding-left: 100%;
+            animation: ticker-scroll 90s linear infinite;
+        }
+
+        @keyframes ticker-scroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-100%); }
+        }
+
+        .ticker-inner span {
+            margin: 0 60px;
+            color: var(--white);
+        }
+        .ticker-inner .highlight {
+            color: var(--amber);
+            font-weight: 700;
+        }
+
+        /* ─── Utilitários ──────────────────────────────────── */
+        .c-amber  { color: var(--amber); }
+        .c-green  { color: var(--green2); }
+        .c-red    { color: var(--red); }
+        .c-blue   { color: var(--blue2); }
+        .c-white  { color: var(--white); }
+
+        /* Responsivo */
+        @media (max-width: 1200px) {
+            .shell { grid-template-columns: 1fr 320px; }
+            .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 960px) {
+            .shell {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+                overflow-y: auto;
+                height: auto;
+            }
+            .main-col { grid-column: 1; grid-row: auto; }
+            .rank-col  { grid-column: 1; grid-row: auto; height: 420px; }
+            .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
 </head>
 
 <body>
-<div class="dashboard">
+<div class="shell">
 
-    <header class="header">
-        <div class="title">
-            <h1>Dashboard Comercial</h1>
-            <div class="periodo" id="periodo">Período carregando...</div>
+    <!-- Header -->
+    <header class="hd">
+        <div class="hd-brand">
+            <div class="hd-logo">
+                <img src="https://recursos.perautomacao.com.br/i/catus/logoWhite.svg" alt="P&R Automação Industrial">
+            </div>
+            <div>
+                <div class="hd-title">P&R Automação Industrial</div>
+                <div class="hd-sub" id="periodo">Carregando período...</div>
+            </div>
         </div>
 
-        <div class="status">
-            <div class="live">● AO VIVO</div>
-            <div id="atualizado">Atualizando...</div>
-            <div>Fonte: Sankhya</div>
+        <div class="hd-right">
+            <div class="hd-stat">
+                <div class="hd-stat-val" id="atualizado">—</div>
+                <div class="hd-stat-label">Atualizado</div>
+            </div>
+            <div class="hd-stat">
+                <div class="hd-stat-val" id="relogio">00:00:00</div>
+                <div class="hd-stat-label">Horário</div>
+            </div>
+            <div class="live-dot">Ao vivo</div>
         </div>
     </header>
 
-    <section class="hero">
-        <div class="hero-card">
-            <div class="hero-label">Faturado + Previsto</div>
-            <div class="hero-value" id="heroFatPrevisto">R$ 0</div>
-            <div class="hero-sub" id="heroSub">Resultado total projetado no período</div>
-        </div>
+    <!-- Coluna Principal -->
+    <div class="main-col">
 
-        <div class="side-card">
-            <div class="side-label">Meta comercial</div>
-            <div class="side-value" id="percentualMeta">0%</div>
-            <div class="progress">
-                <div class="progress-fill" id="barraMeta"></div>
+        <!-- KPI Strip -->
+        <div class="kpi-strip" id="kpiContainer">
+            <div class="kpi kpi-accent">
+                <div class="kpi-label">Total Faturado</div>
+                <div class="kpi-val c-white" id="totalFaturado">R$ —</div>
+                <div class="kpi-note">Vendas confirmadas</div>
+            </div>
+            <div class="kpi kpi-accent-blue">
+                <div class="kpi-label">Previsto</div>
+                <div class="kpi-val c-blue" id="totalPrevisto">R$ —</div>
+                <div class="kpi-note">Oportunidades em aberto</div>
+            </div>
+            <div class="kpi kpi-accent-green">
+                <div class="kpi-label">Grande Chance</div>
+                <div class="kpi-val c-green" id="grandeChance">R$ —</div>
+                <div class="kpi-note">Potencial em negociação</div>
+            </div>
+            <div class="kpi kpi-accent-red">
+                <div class="kpi-label">Devoluções</div>
+                <div class="kpi-val c-red" id="devolucoes">R$ —</div>
+                <div class="kpi-note">Valor devolvido</div>
+            </div>
+            <div class="kpi kpi-accent-purple">
+                <div class="kpi-label">Estoque Total</div>
+                <div class="kpi-val" id="estoqueTotal">R$ —</div>
+                <div class="kpi-note">Base disponível</div>
             </div>
         </div>
 
-        <div class="side-card">
-            <div class="side-label">Falta para meta</div>
-            <div class="side-value" id="faltaMeta">R$ 0</div>
-        </div>
-    </section>
-
-    <section class="cards">
-        <div class="card">
-            <div class="card-label">Total Faturado</div>
-            <div class="card-value" id="totalFaturado">R$ 0</div>
-            <div class="card-sub">Vendas já confirmadas</div>
-        </div>
-
-        <div class="card">
-            <div class="card-label">Previsto</div>
-            <div class="card-value" id="totalPrevisto">R$ 0</div>
-            <div class="card-sub">Oportunidades previstas</div>
-        </div>
-
-        <div class="card">
-            <div class="card-label">Grande Chance</div>
-            <div class="card-value" id="grandeChance">R$ 0</div>
-            <div class="card-sub">Potencial em negociação</div>
-        </div>
-
-        <div class="card">
-            <div class="card-label">Devoluções</div>
-            <div class="card-value" id="devolucoes">R$ 0</div>
-            <div class="card-sub">Valor devolvido no período</div>
-        </div>
-
-        <div class="card">
-            <div class="card-label">Estoque Total</div>
-            <div class="card-value" id="estoqueTotal">R$ 0</div>
-            <div class="card-sub">Base disponível</div>
-        </div>
-    </section>
-
-    <section class="panel ranking-panel">
-            <div class="panel-header">
-                    <div>
-                            <div class="panel-title">Vendedores</div>
-                            <div class="panel-sub">Performance do período</div>
+        <!-- Painel da Meta -->
+        <div class="meta-panel">
+            <div class="meta-top">
+                <div>
+                    <div class="meta-eyebrow">Faturado + Previsto</div>
+                    <div class="meta-big" id="heroFat">
+                        R$ —<span id="heroMeta"></span>
                     </div>
-                    <div class="panel-sub" id="rankingResumo">Carregando...</div>
+                </div>
+                <div class="meta-right">
+                    <div class="meta-pct" id="percentualMeta">— %</div>
+                    <div class="meta-pct-label">da meta</div>
+                    <div class="meta-falta c-red" id="faltaMeta">R$ —</div>
+                    <div class="meta-falta-label">restante</div>
+                </div>
             </div>
 
-            <div class="seller-grid" id="ranking"></div>
-    </section>
+            <div class="fuel-wrap">
+                <div class="fuel-bar">
+                    <div class="fuel-fill" id="barraMeta"></div>
+                </div>
+                <div class="fuel-labels">
+                    <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+                </div>
+            </div>
 
-</div>
+            <div class="ritmo-row">
+                <div class="ritmo-item">
+                    <div class="ritmo-label">Meta comercial</div>
+                    <div class="ritmo-val" id="metaBase">R$ —</div>
+                </div>
+                <div class="ritmo-item">
+                    <div class="ritmo-label">Necessário / dia</div>
+                    <div class="ritmo-val" id="necessarioDia">R$ —</div>
+                </div>
+                <div class="ritmo-item">
+                    <div class="ritmo-label">Status</div>
+                    <div class="ritmo-val" id="statusMeta">—</div>
+                </div>
+            </div>
+        </div>
 
+    </div><!-- /main-col -->
+
+    <!-- Ranking com rolagem infinita -->
+    <aside class="rank-col">
+        <div class="rank-header">
+            <div class="rank-title">Vendedores</div>
+            <div class="rank-sub" id="rankSub">Performance do período</div>
+            <div class="rank-divider"></div>
+        </div>
+        <div class="rank-list" id="rankList">
+            <div class="rank-track" id="rankTrack">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </div>
+    </aside>
+
+</div><!-- /shell -->
+
+<!-- Ticker inferior -->
 <div class="ticker">
-    <div class="ticker-content" id="ticker">
-        Carregando informações comerciais...
-    </div>
+    <div class="ticker-inner" id="ticker">Carregando informações comerciais...</div>
 </div>
 
 <script>
-let ultimoDashboardValido = null;
-let falhasConsecutivas = 0;
+    (function() {
+        /* ─── Helpers ──────────────────────────────── */
+        const escapeHtml = value => String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+        
+        const brl = v => Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+        const pct = v => `${Number(v||0).toFixed(1).replace('.',',')}%`;
+        const n   = v => { const x = Number(v||0); return isFinite(x) ? x : 0; };
+        const ts  = v => {
+            if (!v) return '—';
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? v : d.toLocaleString('pt-BR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+        };
 
-function brl(valor) {
-    const numero = Number(valor || 0);
+        let lastGood = null, fails = 0;
+        let lastValues = {};
 
-    return numero.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-        maximumFractionDigits: 0
-    });
-}
-
-function pct(valor) {
-    return `${Number(valor || 0).toFixed(1).replace(".", ",")}%`;
-}
-
-function numeroSeguro(valor) {
-    const numero = Number(valor || 0);
-    return Number.isFinite(numero) ? numero : 0;
-}
-
-function textoData(valor) {
-    if (!valor) return "Atualizado agora";
-
-    const data = new Date(valor);
-
-    if (!Number.isNaN(data.getTime())) {
-        return "Atualizado em " + data.toLocaleString("pt-BR");
-    }
-
-    return "Atualizado em " + valor;
-}
-
-function calcularClasseMeta(percentual) {
-    if (percentual >= 100) return "meta-ok";
-    if (percentual >= 70) return "meta-alerta";
-    return "meta-critica";
-}
-
-let vendedoresGlobais = [];
-let paginaVendedores = 0;
-const VENDEDORES_POR_PAGINA = 3;
-
-function renderRanking(vendedores) {
-    vendedoresGlobais = Array.isArray(vendedores) ? vendedores : [];
-
-    if (!vendedoresGlobais.length) {
-        document.getElementById("ranking").innerHTML = "";
-        document.getElementById("rankingResumo").innerText = "Sem vendedores no período";
-        return;
-    }
-
-    renderPaginaVendedores();
-}
-
-function renderPaginaVendedores() {
-    const container = document.getElementById("ranking");
-    container.innerHTML = "";
-
-    const total = vendedoresGlobais.length;
-    const totalPaginas = Math.ceil(total / VENDEDORES_POR_PAGINA);
-
-    if (paginaVendedores >= totalPaginas) {
-        paginaVendedores = 0;
-    }
-
-    const inicio = paginaVendedores * VENDEDORES_POR_PAGINA;
-    const fim = inicio + VENDEDORES_POR_PAGINA;
-    const vendedoresPagina = vendedoresGlobais.slice(inicio, fim);
-
-    vendedoresPagina.forEach((vendedor, index) => {
-        const posicao = inicio + index + 1;
-
-        const nome = vendedor.Vendedor || vendedor.vendedor || "Sem nome";
-        const totalVendedor = numeroSeguro(vendedor.Total);
-        const faturado = numeroSeguro(vendedor.Faturado);
-        const previsto = numeroSeguro(vendedor.Previsto);
-        const metaVendedor = numeroSeguro(vendedor.Meta);
-
-        const percentualMetaVendedor =
-            metaVendedor > 0 ? (totalVendedor / metaVendedor) * 100 : 0;
-
-        const faltaMetaVendedor =
-            Math.max(metaVendedor - totalVendedor, 0);
-
-        const progresso =
-            metaVendedor > 0 ? Math.min(percentualMetaVendedor, 100) : 0;
-
-        const metaAtingida =
-            metaVendedor > 0 && percentualMetaVendedor >= 100;
-
-        const card = document.createElement("div");
-        card.className = "seller-card";
-
-        card.innerHTML = `
-            <div class="seller-top">
-                <div class="seller-name">${nome}</div>
-                <div class="seller-position">#${posicao}</div>
-            </div>
-
-            <div class="seller-value">
-                ${brl(totalVendedor)}
-            </div>
-
-            <div class="seller-detail">
-                Fat: ${brl(faturado)} | Prev: ${brl(previsto)}
-            </div>
-
-            <div class="seller-meta">
-                Meta: ${brl(metaVendedor)} • Falta: ${brl(faltaMetaVendedor)} • ${pct(percentualMetaVendedor)}
-            </div>
-
-            <div class="seller-progress">
-                <div 
-                    class="seller-progress-fill ${metaAtingida ? "seller-progress-ok" : ""}" 
-                    style="width:${progresso}%">
-                </div>
-            </div>
-        `;
-
-        container.appendChild(card);
-    });
-
-    document.getElementById("rankingResumo").innerText =
-        `Mostrando ${inicio + 1}-${Math.min(fim, total)} de ${total}`;
-}
-
-function renderDashboard(dados, origemCache = false) {
-    if (!dados) return;
-
-    const estoque = dados.estoque || {};
-    const faturamento = dados.faturamento || {};
-    const metas = dados.metas || {};
-    const ritmoMeta = dados.ritmo_meta || {};
-
-    const fatPrevisto = numeroSeguro(faturamento["Faturado + Previsto"]);
-    const totalFaturado = numeroSeguro(faturamento["Total Faturado"]);
-    const totalPrevisto = numeroSeguro(faturamento["Total Previsto"]);
-    const grandeChance = numeroSeguro(faturamento["Grande Chance"]);
-    const devolucoes = numeroSeguro(faturamento["Devoluções"]);
-    const estoqueTotal = numeroSeguro(estoque["Estoque Total"]);
-
-    const metaBase = numeroSeguro(metas["META_BASE"] || metas["Meta Base"] || 0);
-    const percentual = metaBase > 0 ? (fatPrevisto / metaBase) * 100 : 0;
-    const falta = Math.max(metaBase - fatPrevisto, 0);
-
-    document.getElementById("heroFatPrevisto").innerText = brl(fatPrevisto);
-    document.getElementById("heroSub").innerText =
-        `${brl(fatPrevisto)} de ${brl(metaBase)} no período`;
-
-    const percentualEl = document.getElementById("percentualMeta");
-    percentualEl.innerText = pct(percentual);
-    percentualEl.classList.remove("meta-ok", "meta-alerta", "meta-critica");
-    percentualEl.classList.add(calcularClasseMeta(percentual));
-
-    document.getElementById("barraMeta").style.width = `${Math.min(percentual, 100)}%`;
-    document.getElementById("faltaMeta").innerText = brl(falta);
-
-    document.getElementById("totalFaturado").innerText = brl(totalFaturado);
-    document.getElementById("totalPrevisto").innerText = brl(totalPrevisto);
-    document.getElementById("grandeChance").innerText = brl(grandeChance);
-    document.getElementById("devolucoes").innerText = brl(devolucoes);
-    document.getElementById("estoqueTotal").innerText = brl(estoqueTotal);
-
-    if (dados.periodo) {
-        document.getElementById("periodo").innerText =
-            `Período: ${dados.periodo.inicio} até ${dados.periodo.fim}`;
-    }
-
-    document.getElementById("atualizado").innerText =
-        textoData(dados.atualizado_em) + (origemCache ? " • cache local" : "");
-
-    const vendedores = faturamento["Vendedores"] || [];
-    renderRanking(vendedores);
-
-    const lider = vendedores[0];
-    const mensagensTicker = [];
-
-    if (lider) {
-        mensagensTicker.push(`Líder do período: ${lider.Vendedor} com ${brl(lider.Total)}`);
-    } else {
-        mensagensTicker.push("Ranking de vendedores aguardando dados do período");
-    }
-
-    if (ritmoMeta.alvo === "SUPER_META_ATINGIDA") {
-        mensagensTicker.push("Super meta atingida");
-    } else if (ritmoMeta.alvo === "SUPER_META") {
-        const necessarioSuper = numeroSeguro(ritmoMeta.necessario_por_dia_util);
-        mensagensTicker.push("Meta atingida");
-        mensagensTicker.push(`Para super meta: ${brl(necessarioSuper)}/dia útil`);
-    } else {
-        const necessarioMeta = numeroSeguro(ritmoMeta.necessario_por_dia_util);
-        mensagensTicker.push(`Meta em evolução: ${pct(percentual)}`);
-        mensagensTicker.push(`Necessário por dia útil: ${brl(necessarioMeta)}`);
-    }
-
-    if (origemCache || falhasConsecutivas > 0) {
-        mensagensTicker.push("Exibindo última atualização válida");
-    }
-
-    document.getElementById("ticker").innerText = mensagensTicker.join(" • ");
-}
-
-async function buscarDashboardComTimeout() {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
-
-    try {
-        const response = await fetch("/api/dashboard?ts=" + Date.now(), {
-            signal: controller.signal,
-            cache: "no-store"
-        });
-
-        clearTimeout(timeout);
-
-        if (!response.ok) {
-            throw new Error("API retornou status " + response.status);
-        }
-
-        return await response.json();
-
-    } finally {
-        clearTimeout(timeout);
-    }
-}
-
-async function carregarDashboard() {
-    try {
-        const dados = await buscarDashboardComTimeout();
-
-        if (!dados || !dados.faturamento) {
-            throw new Error("Resposta sem dados de faturamento");
-        }
-
-        ultimoDashboardValido = dados;
-        falhasConsecutivas = 0;
-
-        try {
-            localStorage.setItem("dashboard_comercial_cache", JSON.stringify(dados));
-        } catch (e) {}
-
-        renderDashboard(dados, false);
-
-    } catch (error) {
-        console.warn("Falha ao atualizar dashboard:", error);
-
-        falhasConsecutivas += 1;
-
-        if (ultimoDashboardValido) {
-            renderDashboard(ultimoDashboardValido, true);
-            return;
-        }
-
-        try {
-            const cache = localStorage.getItem("dashboard_comercial_cache");
-
-            if (cache) {
-                ultimoDashboardValido = JSON.parse(cache);
-                renderDashboard(ultimoDashboardValido, true);
+        /* ─── Animação de contagem ────────────────── */
+        function animateValue(element, start, end, duration, formatter = brl) {
+            if (!element) return;
+            const range = end - start;
+            if (range === 0) {
+                element.textContent = formatter(end);
                 return;
             }
-        } catch (e) {}
+            const startTime = performance.now();
+            const step = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = start + range * progress;
+                element.textContent = formatter(current);
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    element.textContent = formatter(end);
+                }
+            };
+            requestAnimationFrame(step);
+        }
 
-        document.getElementById("ticker").innerText =
-            "Aguardando primeira carga válida do dashboard...";
-    }
-}
+        function flashKPI(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('flash');
+            setTimeout(() => el.classList.remove('flash'), 600);
+        }
 
-carregarDashboard();
+        function updateWithAnimation(id, newVal, formatter = brl) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const oldVal = lastValues[id] !== undefined ? lastValues[id] : 0;
+            if (oldVal !== newVal) {
+                flashKPI(id);
+                animateValue(el, oldVal, newVal, 800, formatter);
+            } else {
+                el.textContent = formatter(newVal);
+            }
+            lastValues[id] = newVal;
+        }
 
-setInterval(() => {
-    if (!vendedoresGlobais.length) return;
+        /* ─── Renderização principal ──────────────── */
+        function render(d, cached) {
+            if (!d) return;
 
-    const totalPaginas = Math.ceil(vendedoresGlobais.length / VENDEDORES_POR_PAGINA);
+            const fat   = d.faturamento || {};
+            const est   = d.estoque     || {};
+            const meta  = d.metas       || {};
+            const ritmo = d.ritmo_meta  || {};
 
-    if (totalPaginas <= 1) return;
+            const fatPrev  = n(fat['Faturado + Previsto']);
+            const faturado = n(fat['Total Faturado']);
+            const previsto = n(fat['Total Previsto']);
+            const chance   = n(fat['Grande Chance']);
+            const devol    = n(fat['Devoluções']);
+            const estoque  = n(est['Estoque Total']);
+            const metaBase = n(meta['META_BASE'] || meta['Meta Base'] || 0);
+            const percent  = metaBase > 0 ? (fatPrev / metaBase) * 100 : 0;
+            const falta    = Math.max(metaBase - fatPrev, 0);
 
-    paginaVendedores = (paginaVendedores + 1) % totalPaginas;
-    renderPaginaVendedores();
+            // Header
+            if (d.periodo) {
+                document.getElementById('periodo').textContent = `${d.periodo.inicio} — ${d.periodo.fim}`;
+            }
+            document.getElementById('atualizado').textContent = ts(d.atualizado_em) + (cached ? ' · cache' : '');
 
-}, 8000);
+            // KPIs com animação
+            updateWithAnimation('totalFaturado', faturado);
+            updateWithAnimation('totalPrevisto', previsto);
+            updateWithAnimation('grandeChance', chance);
+            updateWithAnimation('devolucoes', devol);
+            updateWithAnimation('estoqueTotal', estoque);
 
-setInterval(carregarDashboard, 60000);
+            // Meta panel
+            const heroFatEl = document.getElementById('heroFat');
+            heroFatEl.innerHTML = `${brl(fatPrev)}<span> de ${brl(metaBase)}</span>`;
 
-setInterval(() => {
-    window.location.reload();
-}, 1000 * 60 * 60 * 4);
+            const pctEl = document.getElementById('percentualMeta');
+            const oldPct = lastValues['percentualMeta'] !== undefined ? lastValues['percentualMeta'] : 0;
+            if (oldPct !== percent) {
+                animateValue(pctEl, oldPct, percent, 600, pct);
+                pctEl.className = 'meta-pct ' + colorClass(percent);
+            } else {
+                pctEl.textContent = pct(percent);
+            }
+            lastValues['percentualMeta'] = percent;
+
+            document.getElementById('barraMeta').style.width = `${Math.min(percent,100)}%`;
+            updateWithAnimation('faltaMeta', falta);
+            updateWithAnimation('metaBase', metaBase);
+
+            const necDia = n(ritmo.necessario_por_dia_util);
+            updateWithAnimation('necessarioDia', necDia);
+
+            const statusEl = document.getElementById('statusMeta');
+            if (ritmo.alvo === 'SUPER_META_ATINGIDA') {
+                statusEl.textContent = 'Super meta ✓';
+                statusEl.className   = 'ritmo-val c-green';
+            } else if (ritmo.alvo === 'SUPER_META') {
+                statusEl.textContent = 'Meta atingida';
+                statusEl.className   = 'ritmo-val c-amber';
+            } else {
+                statusEl.textContent = 'Em progresso';
+                statusEl.className   = 'ritmo-val';
+            }
+
+            // Ranking (com rolagem infinita)
+            renderRanking(fat['Vendedores'] || []);
+
+            // Ticker
+            buildTicker(d, percent, cached);
+        }
+
+        function colorClass(p) {
+            if (p >= 100) return 'c-green';
+            if (p >= 70)  return 'c-amber';
+            return 'c-red';
+        }
+
+        function rankPctClass(p) {
+            if (p >= 100) return 'rank-pct-ok';
+            if (p >= 70)  return 'rank-pct-warn';
+            return 'rank-pct-bad';
+        }
+
+        let lastRankingSignature = '';
+
+        function renderRanking(vendedores) {
+            const track = document.getElementById('rankTrack');
+            if (!track) return;
+
+            if (!vendedores.length) {
+                const emptySignature = 'empty';
+
+                if (lastRankingSignature !== emptySignature) {
+                    track.innerHTML = '<div style="padding:24px 0;color:var(--muted);font-size:14px">Sem dados no período</div>';
+                    lastRankingSignature = emptySignature;
+                }
+
+                document.getElementById('rankSub').textContent = 'Aguardando dados';
+                return;
+            }
+
+            // Garante ordem correta mesmo se a API vier fora de ordem
+            vendedores = [...vendedores].sort((a, b) => n(b.Total) - n(a.Total));
+
+            // Assinatura estável da lista.
+            // Inclui nome, total, faturado, previsto e meta.
+            const rankingSignature = JSON.stringify(
+                vendedores.map(v => ({
+                    nome: v.Vendedor || v.vendedor || 'Sem nome',
+                    total: n(v.Total),
+                    faturado: n(v.Faturado),
+                    previsto: n(v.Previsto),
+                    meta: n(v.Meta)
+                }))
+            );
+
+            document.getElementById('rankSub').textContent =
+                `${vendedores.length} vendedor${vendedores.length > 1 ? 'es' : ''} no período`;
+
+            // Se nada mudou, não mexe no DOM.
+            // Isso evita o flick e mantém a posição atual da rolagem.
+            if (rankingSignature === lastRankingSignature) {
+                return;
+            }
+
+            lastRankingSignature = rankingSignature;
+
+
+            const itemsHTML = vendedores.map((v, i) => {
+                const nome      = escapeHtml(v.Vendedor || v.vendedor || 'Sem nome');
+                const total     = n(v.Total);
+                const faturado  = n(v.Faturado);
+                const previsto  = n(v.Previsto);
+                const metaV     = n(v.Meta);
+                const percentV  = metaV > 0 ? (total / metaV) * 100 : 0;
+                const barW      = metaV > 0 ? Math.min(percentV, 100) : 0;
+                const metaOk    = metaV > 0 && percentV >= 100;
+                const pos       = i + 1;
+
+                return `
+                    <div class="rank-item">
+                        <div class="rank-item-top">
+                            <div class="rank-num rank-num-${pos <= 3 ? pos : ''}">${pos}</div>
+                            <div class="rank-name">${nome}</div>
+                            <div class="rank-total">${brl(total)}</div>
+                        </div>
+                        <div class="rank-bar-wrap">
+                            <div class="rank-bar-fill ${metaOk ? 'rank-bar-fill-ok' : ''}" style="width:${barW}%"></div>
+                        </div>
+                        <div class="rank-detail">
+                            <span>Fat ${brl(faturado)} · Prev ${brl(previsto)}</span>
+                            <span class="${rankPctClass(percentV)}">${pct(percentV)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            track.innerHTML = `
+            <div class="rank-group">${itemsHTML}</div>
+            <div class="rank-group" aria-hidden="true">${itemsHTML}</div>
+        `;
+
+        const firstGroup = track.querySelector('.rank-group');
+        const groupHeight = firstGroup ? firstGroup.offsetHeight : 0;
+
+        track.style.setProperty('--rank-group-height', groupHeight + 'px');
+
+        const duration = Math.max(vendedores.length * 5, 15);
+        track.style.setProperty('--scroll-duration', duration + 's');
+
+        }
+
+        /* ─── Ticker ───────────────────────────────── */
+        function buildTicker(d, percent, cached) {
+            const fat      = d.faturamento || {};
+            const vendedores = fat['Vendedores'] || [];
+            const lider    = vendedores[0];
+            const ritmo    = d.ritmo_meta || {};
+            const necDia   = n(ritmo.necessario_por_dia_util);
+
+            let html = '';
+            if (lider) html += `<span>🏆 Líder: ${lider.Vendedor || lider.vendedor} — ${brl(n(lider.Total))}</span>`;
+            if (ritmo.alvo === 'SUPER_META_ATINGIDA') {
+                html += '<span class="highlight">Super meta atingida!</span>';
+            } else if (ritmo.alvo === 'SUPER_META') {
+                html += `<span>Meta atingida · Super meta: ${brl(necDia)}/dia</span>`;
+            } else {
+                html += `<span>${pct(percent)} da meta · Necessário: ${brl(necDia)}/dia útil</span>`;
+            }
+            if (cached || fails > 0) html += '<span>⚠ Exibindo cache</span>';
+            html += `<span>P&R Automação Industrial</span>`;
+
+            document.getElementById('ticker').innerHTML = html + '&nbsp;&nbsp;&nbsp;' + html;
+        }
+
+        /* ─── Relógio em tempo real ────────────────── */
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('relogio').textContent = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        /* ─── Fetch ────────────────────────────────── */
+        async function load() {
+            const ctrl    = new AbortController();
+            const timeout = setTimeout(() => ctrl.abort(), 20000);
+            try {
+                const r = await fetch('/api/dashboard?ts=' + Date.now(), { signal: ctrl.signal, cache: 'no-store' });
+                clearTimeout(timeout);
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const d = await r.json();
+                if (!d?.faturamento) throw new Error('Sem dados');
+                lastGood = d;
+                fails    = 0;
+                try { localStorage.setItem('_dash_cache', JSON.stringify(d)); } catch(e) {}
+                render(d, false);
+            } catch(e) {
+                clearTimeout(timeout);
+                console.warn('[dashboard]', e.message);
+                fails++;
+                if (lastGood) { render(lastGood, true); return; }
+                try {
+                    const c = localStorage.getItem('_dash_cache');
+                    if (c) { lastGood = JSON.parse(c); render(lastGood, true); return; }
+                } catch(e2) {}
+                document.getElementById('ticker').textContent = 'Aguardando primeira carga válida...';
+            }
+        }
+
+        load();
+        setInterval(load, 60_000);
+        setInterval(() => location.reload(), 4 * 60 * 60_000);
+    })();
 </script>
 </body>
 </html>
