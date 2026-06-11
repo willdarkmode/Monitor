@@ -209,7 +209,7 @@ class SankhyaReporter:
                         <prompt-parameters>
                             <parameter id="PERIODO.INI">{inicio}</parameter>
                             <parameter id="PERIODO.FIN">{fim}</parameter>
-                            <parameter id="CODEMP">'1', '2'</parameter>
+                            <parameter id="CODEMP">'1', '2', '3'</parameter>
                         </prompt-parameters>
                     </parameters>
                 </requestBody>
