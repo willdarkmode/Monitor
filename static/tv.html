@@ -509,8 +509,8 @@
             display: flex;
             flex-direction: column;
             padding: 0 clamp(18px, 1.5vw, 26px);
-            animation: rank-scroll var(--scroll-duration, 30s) linear infinite;
             will-change: transform;
+            transform: translate3d(0, 0, 0);
         }
 
         .rank-group {
@@ -518,16 +518,6 @@
             flex-direction: column;
             padding: clamp(10px,.9vw,14px) 0;
             flex-shrink: 0;
-        }
-
-        /* Pausa a animação ao passar o mouse (opcional, para debug) */
-        .rank-track:hover {
-            animation-play-state: paused;
-        }
-
-        @keyframes rank-scroll {
-            from { transform: translate3d(0, 0, 0); }
-            to   { transform: translate3d(0, calc(-1 * var(--rank-group-height, 0px)), 0); }
         }
 
         .rank-item {
@@ -821,6 +811,12 @@
 
         let lastGood = null, fails = 0;
         let lastValues = {};
+        let rankOffset = 0;
+        let rankGroupHeight = 0;
+        let rankLastFrame = performance.now();
+        let rankRaf = null;
+        let rankPaused = false;
+        const rankSpeed = 18;
 
         /* ─── Animação de contagem ────────────────── */
         function animateValue(element, start, end, duration, formatter = brl) {
@@ -949,6 +945,31 @@
             return 'rank-pct-bad';
         }
 
+        function startRankScroller() {
+            if (rankRaf) return;
+
+            const step = now => {
+                const track = document.getElementById('rankTrack');
+                const dt = Math.min((now - rankLastFrame) / 1000, 0.08);
+                rankLastFrame = now;
+
+                if (track && rankGroupHeight > 0 && !rankPaused) {
+                    rankOffset += rankSpeed * dt;
+
+                    if (rankOffset >= rankGroupHeight) {
+                        rankOffset = rankOffset % rankGroupHeight;
+                    }
+
+                    track.style.transform = `translate3d(0, ${-rankOffset}px, 0)`;
+                }
+
+                rankRaf = requestAnimationFrame(step);
+            };
+
+            rankLastFrame = performance.now();
+            rankRaf = requestAnimationFrame(step);
+        }
+
         let lastRankingSignature = '';
 
         function renderRanking(vendedores) {
@@ -1023,18 +1044,23 @@
                 `;
             }).join('');
 
+            const oldHeight = rankGroupHeight || 1;
+            const oldProgress = oldHeight > 0 ? rankOffset / oldHeight : 0;
+
             track.innerHTML = `
-            <div class="rank-group">${itemsHTML}</div>
-            <div class="rank-group" aria-hidden="true">${itemsHTML}</div>
-        `;
+                <div class="rank-group">${itemsHTML}</div>
+                <div class="rank-group" aria-hidden="true">${itemsHTML}</div>
+            `;
 
-        const firstGroup = track.querySelector('.rank-group');
-        const groupHeight = firstGroup ? firstGroup.offsetHeight : 0;
+            const firstGroup = track.querySelector('.rank-group');
+            const newHeight = firstGroup ? firstGroup.offsetHeight : 0;
 
-        track.style.setProperty('--rank-group-height', groupHeight + 'px');
+            rankGroupHeight = newHeight;
 
-        const duration = Math.max(vendedores.length * 5, 15);
-        track.style.setProperty('--scroll-duration', duration + 's');
+            if (rankGroupHeight > 0) {
+                rankOffset = Math.min(oldProgress * rankGroupHeight, rankGroupHeight - 1);
+                track.style.transform = `translate3d(0, ${-rankOffset}px, 0)`;
+            }
 
         }
 
@@ -1097,6 +1123,8 @@
         }
 
         load();
+        startRankScroller();
+
         setInterval(load, 60_000);
         setInterval(() => location.reload(), 4 * 60 * 60_000);
     })();
