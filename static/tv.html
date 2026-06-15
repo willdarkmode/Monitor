@@ -761,8 +761,8 @@
                     <div class="ritmo-val" id="necessarioDia">R$ —</div>
                 </div>
                 <div class="ritmo-item">
-                    <div class="ritmo-label">Status</div>
-                    <div class="ritmo-val" id="statusMeta">—</div>
+                    <div class="ritmo-label" id="comparativoLabel">Período anterior</div>
+                    <div class="ritmo-val" id="comparativoAnoAnterior">—</div>
                 </div>
             </div>
         </div>
@@ -817,6 +817,8 @@
         let rankRaf = null;
         let rankPaused = false;
         const rankSpeed = 18;
+        let comparativoMostrarPercentual = false;
+        let comparativoAtual = null;
 
         /* ─── Animação de contagem ────────────────── */
         function animateValue(element, start, end, duration, formatter = brl) {
@@ -859,6 +861,33 @@
                 el.textContent = formatter(newVal);
             }
             lastValues[id] = newVal;
+        }
+
+        function renderComparativoAnoAnterior() {
+            const labelEl = document.getElementById('comparativoLabel');
+            const valueEl = document.getElementById('comparativoAnoAnterior');
+
+            if (!labelEl || !valueEl || !comparativoAtual) return;
+
+            const ano = comparativoAtual.ano;
+            const valor = n(comparativoAtual.valor);
+            const variacao = n(comparativoAtual.variacao_percentual);
+
+            labelEl.textContent = `Período ${ano}`;
+
+            if (comparativoMostrarPercentual) {
+                const sinal = variacao > 0 ? '+' : '';
+                valueEl.textContent = `${sinal}${pct(variacao)}`;
+
+                if (variacao >= 0) {
+                    valueEl.className = 'ritmo-val c-green';
+                } else {
+                    valueEl.className = 'ritmo-val c-red';
+                }
+            } else {
+                valueEl.textContent = brl(valor);
+                valueEl.className = 'ritmo-val';
+            }
         }
 
         /* ─── Renderização principal ──────────────── */
@@ -914,17 +943,8 @@
             const necDia = n(ritmo.necessario_por_dia_util);
             updateWithAnimation('necessarioDia', necDia);
 
-            const statusEl = document.getElementById('statusMeta');
-            if (ritmo.alvo === 'SUPER_META_ATINGIDA') {
-                statusEl.textContent = 'Super meta ✓';
-                statusEl.className   = 'ritmo-val c-green';
-            } else if (ritmo.alvo === 'SUPER_META') {
-                statusEl.textContent = 'Meta atingida';
-                statusEl.className   = 'ritmo-val c-amber';
-            } else {
-                statusEl.textContent = 'Em progresso';
-                statusEl.className   = 'ritmo-val';
-            }
+            comparativoAtual = d.comparativo_ano_anterior || null;
+            renderComparativoAnoAnterior();
 
             // Ranking (com rolagem infinita)
             renderRanking(fat['Vendedores'] || []);
@@ -1126,6 +1146,10 @@
         startRankScroller();
 
         setInterval(load, 60_000);
+        setInterval(() => {
+            comparativoMostrarPercentual = !comparativoMostrarPercentual;
+            renderComparativoAnoAnterior();
+        }, 5000);
         setInterval(() => location.reload(), 4 * 60 * 60_000);
     })();
 </script>

@@ -159,6 +159,33 @@ class SankhyaReporter:
 
         return dias_uteis
 
+    def calcular_periodo_ano_anterior(self):
+        inicio, fim = self.calcular_periodo()
+
+        inicio_dt = datetime.strptime(inicio, "%d/%m/%Y")
+        fim_dt = datetime.strptime(fim, "%d/%m/%Y")
+
+        inicio_ant = inicio_dt.replace(year=inicio_dt.year - 1)
+        fim_ant = fim_dt.replace(year=fim_dt.year - 1)
+
+        return inicio_ant.strftime("%d/%m/%Y"), fim_ant.strftime("%d/%m/%Y")
+
+
+    def calcular_comparativo_ano_anterior(self, faturamento_atual, faturamento_anterior):
+        valor_atual = float((faturamento_atual or {}).get("Faturado + Previsto", 0) or 0)
+        valor_anterior = float((faturamento_anterior or {}).get("Faturado + Previsto", 0) or 0)
+        ano_anterior = datetime.now().year - 1
+
+        variacao_percentual = 0
+        if valor_anterior > 0:
+            variacao_percentual = ((valor_atual - valor_anterior) / valor_anterior) * 100
+
+        return {
+            "ano": ano_anterior,
+            "valor": valor_anterior,
+            "variacao_percentual": variacao_percentual,
+        }
+
     def calcular_ritmo_meta(self, faturamento):
         realizado = float((faturamento or {}).get("Faturado + Previsto", 0) or 0)
         meta_base = METAS.get("META_BASE", 0)
@@ -192,7 +219,7 @@ class SankhyaReporter:
             "necessario_por_dia_util": necessario_por_dia_util,
         }
 
-    def buscar_dados(self, cookies, tipo):
+    def buscar_dados(self, cookies, tipo, periodo=None):
         endpoint = f'{SANKHYA_CRED["BASE_URL"]}/service.sbr'
         sessao = SANKHYA_CRED["SESSAO_ESTOQUE" if tipo == "estoque" else "SESSAO_FATURAMENTO"]
         params = {
@@ -201,7 +228,7 @@ class SankhyaReporter:
         }
 
         if tipo == "faturamento":
-            inicio, fim = self.calcular_periodo()
+            inicio, fim = periodo if periodo else self.calcular_periodo()
             data = f"""
             <serviceRequest serviceName="DynaGadgetBuilderSP.resolveGadgetLevel">
                 <requestBody>
@@ -342,12 +369,25 @@ class SankhyaReporter:
         inicio, fim = self.calcular_periodo()
         ritmo_meta = self.calcular_ritmo_meta(faturamento)
 
+        periodo_ano_anterior = self.calcular_periodo_ano_anterior()
+        faturamento_ano_anterior = self.buscar_dados(
+            cookies,
+            "faturamento",
+            periodo=periodo_ano_anterior,
+        ) or {}
+
+        comparativo_ano_anterior = self.calcular_comparativo_ano_anterior(
+            faturamento,
+            faturamento_ano_anterior,
+        )
+
         return {
             "fonte": "sankhya",
             "atualizado_em": datetime.now().isoformat(),
             "periodo": {"inicio": inicio, "fim": fim},
             "metas": METAS,
             "ritmo_meta": ritmo_meta,
+            "comparativo_ano_anterior": comparativo_ano_anterior,
             "estoque": estoque,
             "faturamento": faturamento,
         }
@@ -371,12 +411,20 @@ def gerar_mock():
             {"Vendedor": "Rafael", "Faturado": 310000, "Previsto": 65000, "Total": 375000},
         ],
     }
+
+    comparativo_ano_anterior = {
+        "ano": agora.year - 1,
+        "valor": 2650000.0,
+        "variacao_percentual": ((realizado - 2650000.0) / 2650000.0) * 100,
+    }
+
     return {
         "fonte": "mock",
         "atualizado_em": agora.isoformat(),
         "periodo": {"inicio": "05/06/2026", "fim": "04/07/2026"},
         "metas": METAS,
         "ritmo_meta": reporter.calcular_ritmo_meta(faturamento),
+        "comparativo_ano_anterior": comparativo_ano_anterior,
         "estoque": {
             "Estoque Total": 2145000,
             "Novos P&R": 690000,
