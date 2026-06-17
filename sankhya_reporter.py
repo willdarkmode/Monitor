@@ -246,7 +246,7 @@ class SankhyaReporter:
             data = """
             <serviceRequest serviceName="DynaGadgetBuilderSP.resolveGadgetLevel">
                 <requestBody>
-                    <parameters NUGADGET="206" LEVEL-ID="lvl_a7yoata" LEVEL-PATH="lvl_a7yoata"/>
+                    <parameters NUGADGET="457" LEVEL-ID="lvl_a7yoata" LEVEL-PATH="lvl_a7yoata"/>
                 </requestBody>
             </serviceRequest>
             """
