@@ -78,6 +78,9 @@ def home():
 def tv():
     return FileResponse(BASE_DIR / "static" / "tv.html")
 
+@app.get("/mobile")
+def mobile():
+    return FileResponse(BASE_DIR / "static" / "mobile.html")
 
 @app.get("/api/dashboard")
 def api_dashboard():

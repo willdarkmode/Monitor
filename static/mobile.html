@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel Comercial — P&R Automação Industrial</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,31 +40,35 @@
         }
 
         html, body {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: auto;
+            min-height: 100%;
             background: radial-gradient(ellipse at 30% 20%, #131E33 0%, var(--bg-deep) 70%);
             color: var(--text);
             font-family: var(--sans);
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ─── Layout Principal ─────────────────────────────── */
         .shell {
-            height: calc(100vh - var(--tick-h));
+            height: auto;
+            min-height: 100vh;
             display: grid;
-            grid-template-rows: auto auto 1fr;
-            grid-template-columns: 1fr 380px;
+            grid-template-rows: auto auto auto;
+            grid-template-columns: 1fr;
             column-gap: clamp(16px, 1.5vw, 28px);
             row-gap: clamp(8px, .8vw, 16px);
             padding: var(--pad) var(--pad) 0;
+            padding-bottom: calc(var(--tick-h) + 18px);
         }
 
-        /* ─── Header ───────────────────────────────────────── */
         .hd {
             grid-column: 1 / -1;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
             justify-content: space-between;
             padding-bottom: clamp(10px, 1vw, 18px);
             border-bottom: 1px solid var(--border);
@@ -111,11 +115,14 @@
         }
 
         .hd-right {
+            width: 100%;
+            justify-content: space-between;
+            flex-wrap: wrap;
             display: flex;
             align-items: center;
-            gap: clamp(28px, 3vw, 48px);
+            gap: 12px;
         }
-
+        
         .hd-stat {
             text-align: right;
         }
@@ -176,7 +183,7 @@
         /* ─── KPI Strip ────────────────────────────────────── */
         .kpi-strip {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: 1fr;
             gap: clamp(10px, 1vw, 18px);
         }
 
@@ -288,6 +295,7 @@
 
         .meta-top {
             display: flex;
+            flex-direction: column;
             align-items: flex-start;
             justify-content: space-between;
             gap: 28px;
@@ -321,7 +329,8 @@
         }
 
         .meta-right {
-            text-align: right;
+            width: 100%;
+            text-align: left;
             flex-shrink: 0;
             background: rgba(255,255,255,.02);
             padding: 18px 22px;
@@ -426,7 +435,7 @@
         /* Ritmo */
         .ritmo-row {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr;
             gap: clamp(12px, 1.2vw, 20px);
         }
 
@@ -459,8 +468,9 @@
 
         /* ─── Ranking (com rolagem infinita) ──────────────── */
         .rank-col {
-            grid-column: 2;
-            grid-row: 2 / 4;
+            grid-column: 1;
+            grid-row: auto;
+            height: 420px;
             background: var(--bg1);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
@@ -667,7 +677,6 @@
 </head>
 
 <body>
-<div class="tv-scale">
 <div class="shell">
 
     <!-- Header -->
@@ -786,7 +795,6 @@
     </aside>
 
 </div><!-- /shell -->
-</div><!-- /tv-scale -->
 
 <!-- Ticker inferior -->
 <div class="ticker">
